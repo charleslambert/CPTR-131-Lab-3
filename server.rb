@@ -73,7 +73,7 @@ class Server
 
 	def broadcast(message, username, client_hash)
 		client_hash.each do |key, value|
-			value.puts "#{username} #{message}"
+			value.puts "BROADCASTED #{username} #{message}"
 		end
 		return "SENT"
 	end

@@ -14,21 +14,19 @@ class Client
 		client_input = nil
 		loop do		
 			if(server_input == nil)
-			server_input = Thread.new{	
-			if ((s_message = @server.gets).strip != nil)
-				puts "meee"
-				puts s_message.strip
-				@server.puts "RECIEVED"
+				server_input = Thread.new{	
+					if ((s_message = @server.gets).strip != nil)
+						puts s_message.strip
+						@server.puts "RECIEVED"
+					end
+					if (/DISCONNECTED*/ =~ s_message)
+						@server.close
+						exit
+					end
+					server_input = nil
+				}
 			end
-			server_input = nil
-			}
-			end
-=begin
-			if (/DISCONNECTED*/ =~ s_message)
-				@server.close
-				exit
-			end
-=end
+
 			if(client_input == nil)
 				client_input = Thread.new {
 					user_input = gets.chomp
