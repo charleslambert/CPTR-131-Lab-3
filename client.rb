@@ -9,25 +9,31 @@ class Client
 	def client_run()
 
 		connect(@server)
-		
-		thr = nil
-		
-		loop do
+		puts "pewdipie"
+		server_input = nil
+		client_input = nil
+		loop do		
+			if(server_input == nil)
+			server_input = Thread.new{	
 			if ((s_message = @server.gets).strip != nil)
+				puts "meee"
 				puts s_message.strip
 				@server.puts "RECIEVED"
 			end
-
+			server_input = nil
+			}
+			end
+=begin
 			if (/DISCONNECTED*/ =~ s_message)
 				@server.close
 				exit
 			end
-
-			if(thr == nil)
-				thr = Thread.new {
+=end
+			if(client_input == nil)
+				client_input = Thread.new {
 					user_input = gets.chomp
 					@server.puts user_input
-					thr = nil
+					client_input = nil
 				}
 			end
 		end
@@ -38,7 +44,9 @@ class Client
 		while (connected != true)
 			attempt = gets.chomp
 			server.puts attempt
-			if /CONNECTED*/ =~ server.gets
+			c_or_f = server.gets
+			puts c_or_f
+			if /CONNECTED/ =~ c_or_f
 				connected = true
 			else
 				connected = false

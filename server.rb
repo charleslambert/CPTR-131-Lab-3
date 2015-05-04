@@ -15,7 +15,7 @@ class Server
 
   				c_message = ""
 
-  				while(c_message != /DISCONNECTED/)
+  				while((/DISCONNECTED*/ =~ c_message) != true) 
   					c_message = client.gets
   					c_message = command(c_message.strip, username, client, @client_hash)
   					if (c_message != nil)
@@ -57,11 +57,13 @@ class Server
 
 			c_message = client.gets
 			
-			if (/CONNECT\s+(\S+)/ =~ c_message && client_hash.has_key?($1) != true) 
+			if (/CONNECT\s+(\S+)/ =~ c_message.strip && (client_hash.has_key?($1) != true)) 
  				client_hash[$1] = client
 				client.puts "CONNECTED #{$1}"
 				connected = true
 				return $1
+			elsif (/RECIEVED/ =~ c_message)
+				puts c_message
 			else
 				client.puts "FAILED"
 				connected = false
@@ -93,7 +95,6 @@ class Server
 		client_hash.delete(username)
 		return "DISCONNECTED #{username}"
 	end
-
 end
 
 server = Server.new
