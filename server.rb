@@ -10,16 +10,23 @@ class Server
 	def server_run()
 		loop do
   			Thread.start(@server.accept) do |client|
-
+  			#A thread is created to handle each user who connects.
   				username = connect(client, @client_hash)
+  				#Connect allows the user to attempt a connection until 
+  				#a connection is made(only require is a valid username).
+  				#A valid username has no spaces and is not already connected
+  				server_message = ""
 
-  				c_message = ""
-
-  				while((/DISCONNECTED*/ =~ c_message) != true) 
-  					c_message = client.gets
-  					c_message = command(c_message.strip, username, client, @client_hash)
-  					if (c_message != nil)
-  						client.puts c_message
+  				while((/DISCONNECTED*/ =~ server_message) != true)
+  					#A loop that is the basically the connected state of a client.
+  					#A server recieves message/command and it interprets it with the
+  					#the command function which returns either the return message for the 
+  					#client or nil
+  					client_message = client.gets
+  					server_message = command(c_message.strip, username, client, @client_hash)
+  					#Determines if a return message needs to be sent to the client
+  					if (server_message != nil)
+  						client.puts server_message
   					end
   				end
   			end

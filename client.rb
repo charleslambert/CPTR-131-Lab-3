@@ -9,12 +9,11 @@ class Client
 	def client_run()
 
 		connect(@server)
-		puts "pewdipie"
-		server_input = nil
-		client_input = nil
+		@server_input = nil
+		@client_input = nil
 		loop do		
-			if(server_input == nil)
-				server_input = Thread.new{	
+			if(@server_input == nil)
+				@server_input = Thread.new{	
 					if ((s_message = @server.gets).strip != nil)
 						puts s_message.strip
 						@server.puts "RECIEVED"
@@ -23,15 +22,15 @@ class Client
 						@server.close
 						exit
 					end
-					server_input = nil
+					@server_input = nil
 				}
 			end
 
-			if(client_input == nil)
-				client_input = Thread.new {
+			if(@client_input == nil)
+				@client_input = Thread.new {
 					user_input = gets.chomp
 					@server.puts user_input
-					client_input = nil
+					@client_input = nil
 				}
 			end
 		end
