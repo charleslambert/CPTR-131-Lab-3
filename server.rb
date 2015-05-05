@@ -61,17 +61,25 @@ class Server
 		connected = false
 
 		while(connected == false)
-
+		#Loop allows the user to continually try to connect
+		#until they are able to successfully connect.
 			c_message = client.gets
 			
-			if (/CONNECT\s+(\S+)/ =~ c_message.strip && (client_hash.has_key?($1) != true)) 
+			if (/CONNECT\s+(\S+)/ =~ c_message.strip && (client_hash.has_key?($1) != true))
+			#If the client message is of the correct form and does not already exist
+			#the clients username is added to the client_hash and client is told they have 
+			#connected successfully. 
  				client_hash[$1] = client
 				client.puts "CONNECTED #{$1}"
 				connected = true
 				return $1
+
 			elsif (/RECIEVED/ =~ c_message)
+			#Server puts the recieved message issued from the client when either 
+			#the message for a successful connection or failed connection.
 				puts c_message
 			else
+			#If the client fails to connect the server tells them.
 				client.puts "FAILED"
 				connected = false
 			end
@@ -79,6 +87,8 @@ class Server
 	end
 
 	def broadcast(message, username, client_hash)
+	#Broadcast takes the message it is given and sends it to each client in the 
+	#client_hash and returns SENT.
 		client_hash.each do |key, value|
 			value.puts "BROADCASTED #{username} #{message}"
 		end
@@ -86,6 +96,8 @@ class Server
 	end
 
 	def send(client_hash, username, user_to, message)
+	#Send takes the message it is given and sends it to the approiate 
+	#recipiant if they exists in the client_hash and returns SENT or FAIlED.
 		if (client_hash.has_key?(user_to))
 			client_hash[user_to].puts "SENTFROM #{username} #{message}"
 			return "SENT"
@@ -95,10 +107,13 @@ class Server
 	end
 
 	def userlist(client_hash, client)
+	#Returns the userlist.
 		return "USERS #{client_hash.keys.inspect}"
 	end
 
 	def disconnect(client_hash, client, username)
+	#Deletes the clients username from the client hash and returns DISCONNECTED 
+	#message to the user.
 		client_hash.delete(username)
 		return "DISCONNECTED #{username}"
 	end
