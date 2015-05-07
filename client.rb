@@ -1,6 +1,7 @@
 require 'socket'
 
 class Client
+	attr_reader :sever
 
 	def initialize()
 		@server = TCPSocket.new 'localhost', 2000
@@ -8,7 +9,7 @@ class Client
 		@response = nil
 	end
 
-	def client_run()
+	def run()
 		connect(@server)
 		recieve()
 		send()
@@ -42,12 +43,14 @@ class Client
 			loop {
 				message = @server.gets.chomp
 				puts message
-				@server.puts "RECIEVED"
-	
-				if (/DISCONNECTED/ =~ message)
+
+				if ((/DISCONNECTED/ =~ message) or (/STOPPING/ =~ message))
 					@server.close
 					exit
 				end
+				
+
+				@server.puts "RECIEVED"
 			}
 		}
 	end
@@ -64,4 +67,3 @@ class Client
 	end
 end
 
-Client.new.client_run

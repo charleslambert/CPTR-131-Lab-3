@@ -7,7 +7,7 @@ class Server
 		@client_hash = Hash.new
 	end
 
-	def server_run()
+	def run()
 		loop do
   			Thread.start(@server.accept) do |client|
   			#A thread is created to handle each user who connects.
@@ -48,6 +48,8 @@ class Server
 		when /RECIEVED/
 			return_message = nil
 			puts recieved_message
+		when /SHUTDOWN\s+(.+)/
+			return_message = shutdown(client_hash, $1)
 		else
 			return_message = "Not a valid command"
 		end
@@ -100,7 +102,7 @@ class Server
 			client_hash[user_to].puts "SENTFROM #{username} #{message}"
 			return "SENT"
 		else 
-			return "FAILED #{user} is not a user."
+			return "FAILED #{user_to} is not a user."
 		end
 	end
 
@@ -117,7 +119,15 @@ class Server
 		puts client.gets.chomp
 		Thread.kill self
 	end
-end
 
-server = Server.new
-server.server_run
+	def shutdown(client_hash, passcode)
+		if passcode == "6359"
+			client_hash.each { |key, value| 
+				value.puts "STOPPING"
+			}
+			exit
+		else 
+			return "Invalid passcode"
+		end
+	end
+end
