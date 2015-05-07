@@ -4,36 +4,17 @@ class Client
 
 	def initialize()
 		@server = TCPSocket.new 'localhost', 2000
+		@request = nil
+		@response = nil
 	end
 
 	def client_run()
-
 		connect(@server)
-		@server_input = nil
-		@client_input = nil
-		loop do		
-			if(@server_input == nil)
-				@server_input = Thread.new{	
-					if ((s_message = @server.gets).strip != nil)
-						puts s_message.strip
-						@server.puts "RECIEVED"
-					end
-					if (/DISCONNECTED*/ =~ s_message)
-						@server.close
-						exit
-					end
-					@server_input = nil
-				}
-			end
-
-			if(@client_input == nil)
-				@client_input = Thread.new {
-					user_input = gets.chomp
-					@server.puts user_input
-					@client_input = nil
-				}
-			end
-		end
+		recieve()
+		send()
+		@request.join
+		@response.join
+		#Ensure the completion all threads
 	end
 
 	def connect(server)
@@ -41,15 +22,45 @@ class Client
 		while (connected != true)
 			attempt = gets.chomp
 			server.puts attempt
-			c_or_f = server.gets
-			puts c_or_f
-			if /CONNECTED/ =~ c_or_f
+			con_or_fail = server.gets
+			if /CONNECTED/ =~ con_or_fail
 				connected = true
 			else
 				connected = false
 			end
+			puts con_or_fail
 			server.puts "RECIEVED"
 		end
+	end
+
+	def recieve()
+	#Waits for server responses. 
+	#If the server sends a message, it is put to screen
+	#and the message RECIEVED is returned.
+	#If the message DISCONNECTED is recieved the client is shut down.
+		@response = Thread.new {
+			loop {
+				message = @server.gets.chomp
+				puts message
+				@server.puts "RECIEVED"
+	
+				if (/DISCONNECTED/ =~ message)
+					@server.close
+					exit
+				end
+			}
+		}
+	end
+
+	def send()
+	#Waits for client input. When client enters a message the
+	#message is sent to the server.
+		@request = Thread.new {
+			loop {
+				message = gets.chomp
+				@server.puts message
+			}
+		}
 	end
 end
 
